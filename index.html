@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Busca — Bitcoin e Liberdade</title>
+<meta name="description" content="Pesquise temas nos vídeos do canal Bitcoin e Liberdade.">
+<style>
+:root{--bg:#0e0e0c;--fg:#f2f0ea;--muted:#9b978c;--card:#181815;--line:#2a2a25;--accent:#f7931a;--accent2:#fb923c;--mark:#7c4a03;--chip:#22221e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:16px;z-index:2}
+.wrap{max-width:920px;margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font-size:21px;margin:0;letter-spacing:-.02em}
+h1 b{color:var(--accent);font-weight:800}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 14px}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#q{flex:1;min-width:240px;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
+#q:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.toggle{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;white-space:nowrap;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent)}
+main{padding:16px}
+.info{color:var(--muted);font-size:13px;margin:0 0 12px;min-height:18px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--chip);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--accent);color:var(--fg)}
+article{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+article h2{font-size:16px;margin:0 0 4px;line-height:1.35;font-weight:600}
+article h2 a{color:var(--fg);text-decoration:none}
+article h2 a:hover{text-decoration:underline}
+.meta{color:var(--muted);font-size:13px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.badge{color:var(--accent);font-weight:700;font-size:12px;border:1px solid var(--accent);border-radius:999px;padding:1px 8px}
+.score{color:var(--accent2);font-weight:700;font-size:12px}
+.links{margin-top:7px;display:flex;gap:14px;font-size:13px;flex-wrap:wrap}
+.links a{color:var(--accent2);text-decoration:none}
+.links a:hover{text-decoration:underline}
+.tags{margin-top:7px;font-size:12px;color:var(--muted);line-height:1.5}
+.hit{margin-top:9px;font-size:14px;border-left:3px solid var(--accent);padding-left:11px;color:var(--muted)}
+.hit .t{margin-right:8px;font-variant-numeric:tabular-nums}
+.hit .t a{color:var(--accent2);text-decoration:none}
+.hit .t a:hover{text-decoration:underline}
+.hit mark{background:var(--mark);color:var(--fg);padding:0 2px;border-radius:2px}
+.hit span.ctx{color:var(--fg)}
+details{margin-top:9px;font-size:13px}
+details summary{cursor:pointer;color:var(--muted)}
+details pre{white-space:pre-wrap;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;max-height:380px;overflow:auto;margin:8px 0 0;padding:10px;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+button{margin:10px auto;display:block;padding:10px 20px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font-size:14px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+.sem{font-size:12px;color:var(--muted);margin-top:8px}
+.sem input{width:100%;margin-top:5px;padding:7px 10px;font-size:12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+footer{padding:24px 16px;color:var(--muted);font-size:12px;text-align:center}
+@media (prefers-color-scheme:light){:root{--bg:#f7f5f0;--fg:#1c1b17;--muted:#6b675d;--card:#fff;--line:#e6e2d8;--accent:#d97706;--accent2:#b45309;--mark:#fde68a;--chip:#f0ede5}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><h1>Busca <b>Bitcoin e Liberdade</b></h1><span class="sub" id="resumo"></span></div>
+  <div class="ctl">
+    <input type="search" id="q" placeholder="Pesquise um tema… ex.: autocustódia, ETF, inflação, declaração de IR" autofocus autocomplete="off">
+    <label class="toggle"><input type="checkbox" id="membros"> só membros</label>
+    <label class="toggle"><input type="checkbox" id="sem"> semântica (IA)</label>
+  </div>
+  <div class="sem" id="semcfg" hidden>
+    Endpoint do Ollama (deixe vazio para desligar): <input type="text" id="ollama" placeholder="http://localhost:11434" value="">
+  </div>
+</div></header>
+<main class="wrap">
+  <div class="chips" id="chips"></div>
+  <div class="info" id="info"></div>
+  <div id="lista"></div>
+  <button id="mais" hidden>Mostrar mais</button>
+</main>
+<footer>Catálogo do canal <b>Bitcoin e Liberdade</b> · transcrições geradas automaticamente · vídeos no YouTube, Odysee e Archive.org</footer>
+
+<script src="dados.js"></script>
+<script src="embeddings.js"></script>
+<script>
+"use strict";
+const V = window.CATALOGO || [];
+const E = window.EMBEDDINGS || {};
+const norm = s => (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+V.forEach(v=>{
+  v._t = norm(v.titulo + " " + (v.tags||[]).join(" "));
+  v._x = norm(v.transcricao);
+  v._linhas = (v.transcricao||"").split("\n");
+});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const horas = Math.round(V.reduce((a,v)=>a+(v.seg||0),0)/3600);
+document.getElementById("resumo").textContent = `${V.length} vídeos · ${horas}h · ${V.filter(v=>v.transcricao).length} transcritos`;
+
+function dot(a,b){let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s}
+function cosseno(a,b){const na=Math.sqrt(dot(a,a)),nb=Math.sqrt(dot(b,b));return (na&&nb)?dot(a,b)/(na*nb):0}
+
+function marcar(txt, termos){
+  let h=esc(txt);
+  for(const t of termos){
+    const re=new RegExp("("+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/[aeiouc]/g,c=>({a:"[aáàâã]",e:"[eéê]",i:"[ií]",o:"[oóôõ]",u:"[uúü]",c:"[cç]"}[c]))+")","gi");
+    h=h.replace(re,"<mark>$1</mark>");
+  }
+  return h;
+}
+function tempo(ts){return ts.split(":").map(Number).reduce((a,n)=>a*60+n,0)}
+
+let res=[], mostrados=0, termos=[], qEmb=null, embAtivo=false;
+async function embedQuery(texto){
+  const base=document.getElementById("ollama").value.trim()||"http://localhost:11434";
+  try{
+    const r=await fetch(base.replace(/\/$/,"")+"/api/embed",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"nomic-embed-text",input:texto})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    return (await r.json()).embeddings[0];
+  }catch(e){ return null; }
+}
+async function buscar(){
+  const q=norm(document.getElementById("q").value.trim());
+  termos=q.split(/\s+/).filter(Boolean);
+  const so=document.getElementById("membros").checked;
+  const usarSem=document.getElementById("sem").checked && q && Object.keys(E).length;
+  let lista=V.filter(v=>(!so||v.membros));
+  let sem=false, queryVec=null;
+
+  if(q){
+    if(usarSem){
+      queryVec=await embedQuery(document.getElementById("q").value.trim());
+      if(queryVec){
+        sem=true; embAtivo=true;
+        lista=lista.map(v=>({v,s:cosseno(queryVec,E[v.id]||[])}));
+        lista=lista.filter(x=>x.s>0.28).sort((a,b)=>b.s-a.s);
+        lista=lista.map(x=>x.v);
+      } else {
+        document.getElementById("info").textContent="Não consegui falar com o Ollama; usando busca por texto.";
+      }
+    }
+    if(!sem){
+      lista=lista.filter(v=>termos.every(t=>v._t.includes(t)||v._x.includes(t)));
+      lista.sort((a,b)=>termos.every(t=>b._t.includes(t))-termos.every(t=>a._t.includes(t)));
+    }
+  } else {
+    lista=lista.slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+  }
+  res=lista; res.termos=termos; res.sem=sem; res.qv=queryVec; mostrados=0;
+  document.getElementById("lista").innerHTML="";
+  document.getElementById("info").textContent = (q||so) ? `${res.length} resultado(s)` : "";
+  render();
+}
+function scoreDo(v){ if(!res.qv||!res.sem) return null; const s=cosseno(res.qv,E[v.id]||[]); return s.toFixed(2); }
+function render(){
+  const out=[];
+  for(const v of res.slice(mostrados,mostrados+40)){
+    let hits="";
+    if(termos.length){
+      const achados=v._linhas.filter(l=>termos.some(t=>norm(l).includes(t))).slice(0,3);
+      hits=achados.map(l=>{
+        const m=l.match(/^\[([\d:]+)\]\s*(.*)$/); if(!m)return "";
+        const s=tempo(m[1]), frase=m[2];
+        const alvo=termos.find(t=>norm(frase).includes(t))||"";
+        const pos=Math.max(0,norm(frase).indexOf(alvo)-100);
+        const trecho=(pos?"…":"")+frase.slice(pos,pos+260)+"…";
+        return `<div class="hit"><span class="t"><a href="${v.youtube}&t=${s}s" target="_blank">${m[1]}</a></span><span class="ctx">${marcar(trecho,termos)}</span></div>`;
+      }).join("");
+    }
+    const sc=scoreDo(v);
+    out.push(`<article>
+      <h2><a href="${v.youtube}" target="_blank">${termos.length?marcar(v.titulo,termos):esc(v.titulo)}</a></h2>
+      <div class="meta"><span>${esc(v.data)}</span><span>${esc(v.duracao)}</span>${v.membros?'<span class="badge">só membros</span>':""}${sc?'<span class="score">'+sc+'</span>':""}</div>
+      <div class="links"><a href="${v.youtube}" target="_blank">YouTube</a>${v.odysee?`<a href="${v.odysee}" target="_blank">Odysee</a>`:""}${v.archive?`<a href="${v.archive}" target="_blank">Archive.org</a>`:""}</div>
+      ${(v.tags||[]).length?`<div class="tags">${esc(v.tags.slice(0,8).join(" · "))}</div>`:""}
+      ${hits}
+      ${v.transcricao?`<details><summary>Transcrição completa</summary><pre>${esc(v.transcricao)}</pre></details>`:""}
+    </article>`);
+  }
+  mostrados+=40;
+  document.getElementById("lista").insertAdjacentHTML("beforeend",out.join(""));
+  document.getElementById("mais").hidden=mostrados>=res.length;
+}
+
+// chips de temas populares (das tags)
+function montarChips(){
+  const freq={};
+  V.forEach(v=>{(v.tags||[]).slice(0,3).forEach(t=>{const k=t.toLowerCase();freq[k]=(freq[k]||0)+1;})});
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,18).map(x=>x[0]);
+  document.getElementById("chips").innerHTML=top.map(t=>`<button class="chip">${esc(t)}</button>`).join("");
+  document.getElementById("chips").addEventListener("click",e=>{
+    const c=e.target.closest(".chip"); if(!c)return;
+    document.getElementById("q").value=c.textContent; buscar();
+  });
+}
+
+let timer;
+document.getElementById("q").addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(buscar,250)});
+document.getElementById("membros").addEventListener("change",buscar);
+document.getElementById("sem").addEventListener("change",()=>{
+  document.getElementById("semcfg").hidden=!document.getElementById("sem").checked;
+  buscar();
+});
+document.getElementById("ollama").addEventListener("change",buscar);
+document.getElementById("mais").addEventListener("click",render);
+montarChips();
+buscar();
+</script>
+</body>
+</html>
