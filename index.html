@@ -61,9 +61,6 @@ footer{padding:24px 16px;color:var(--muted);font-size:12px;text-align:center}
     <label class="toggle"><input type="checkbox" id="membros"> só membros</label>
     <label class="toggle"><input type="checkbox" id="sem"> semântica (IA)</label>
   </div>
-  <div class="sem" id="semcfg" hidden>
-    Endpoint do Ollama (deixe vazio para desligar): <input type="text" id="ollama" placeholder="http://localhost:11434" value="">
-  </div>
 </div></header>
 <main class="wrap">
   <div class="chips" id="chips"></div>
@@ -75,7 +72,10 @@ footer{padding:24px 16px;color:var(--muted);font-size:12px;text-align:center}
 
 <script src="dados.js"></script>
 <script src="embeddings.js"></script>
-<script>
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0/+esm';
+env.allowLocalModels = false;
+const IA_MODEL = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
 "use strict";
 const V = window.CATALOGO || [];
 const E = window.EMBEDDINGS || {};
@@ -102,14 +102,16 @@ function marcar(txt, termos){
 }
 function tempo(ts){return ts.split(":").map(Number).reduce((a,n)=>a*60+n,0)}
 
-let res=[], mostrados=0, termos=[], qEmb=null, embAtivo=false;
+let res=[], mostrados=0, termos=[];
+let _extractor = null;
+async function getExtractor(){
+  if(!_extractor) _extractor = await pipeline('feature-extraction', IA_MODEL);
+  return _extractor;
+}
 async function embedQuery(texto){
-  const base=document.getElementById("ollama").value.trim()||"http://localhost:11434";
-  try{
-    const r=await fetch(base.replace(/\/$/,"")+"/api/embed",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"nomic-embed-text",input:texto})});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    return (await r.json()).embeddings[0];
-  }catch(e){ return null; }
+  const ex = await getExtractor();
+  const out = await ex(texto, { pooling: 'mean', normalize: true });
+  return Array.from(out.data);
 }
 async function buscar(){
   const q=norm(document.getElementById("q").value.trim());
@@ -121,14 +123,16 @@ async function buscar(){
 
   if(q){
     if(usarSem){
-      queryVec=await embedQuery(document.getElementById("q").value.trim());
-      if(queryVec){
-        sem=true; embAtivo=true;
+      document.getElementById("info").textContent="Carregando modelo de IA (só na primeira vez)…";
+      try{
+        queryVec=await embedQuery(document.getElementById("q").value.trim());
+        sem=true;
         lista=lista.map(v=>({v,s:cosseno(queryVec,E[v.id]||[])}));
         lista=lista.filter(x=>x.s>0.28).sort((a,b)=>b.s-a.s);
         lista=lista.map(x=>x.v);
-      } else {
-        document.getElementById("info").textContent="Não consegui falar com o Ollama; usando busca por texto.";
+      }catch(e){
+        sem=false;
+        document.getElementById("info").textContent="Não consegui carregar o modelo; usando busca por texto.";
       }
     }
     if(!sem){
@@ -189,11 +193,7 @@ function montarChips(){
 let timer;
 document.getElementById("q").addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(buscar,250)});
 document.getElementById("membros").addEventListener("change",buscar);
-document.getElementById("sem").addEventListener("change",()=>{
-  document.getElementById("semcfg").hidden=!document.getElementById("sem").checked;
-  buscar();
-});
-document.getElementById("ollama").addEventListener("change",buscar);
+document.getElementById("sem").addEventListener("change",buscar);
 document.getElementById("mais").addEventListener("click",render);
 montarChips();
 buscar();

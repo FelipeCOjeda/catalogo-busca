@@ -1,0 +1,23 @@
+{
+  "name": "catalogo-busca",
+  "version": "1.0.0",
+  "description": "Página estática (GitHub Pages) para pesquisar temas nos vídeos do canal **Bitcoin e Liberdade**.",
+  "main": "dados.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FelipeCOjeda/catalogo-busca.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FelipeCOjeda/catalogo-busca/issues"
+  },
+  "homepage": "https://github.com/FelipeCOjeda/catalogo-busca#readme",
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.0"
+  }
+}
