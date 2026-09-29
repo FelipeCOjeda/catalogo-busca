@@ -11,9 +11,8 @@ const catalog = JSON.parse(payload);
 
 function texto(v) {
   const titulo = (v.titulo || '').trim();
-  const tags = (v.tags || []).slice(0, 12).join(' ');
   const trecho = (v.transcricao || '').slice(0, 400).replace(/\[[\d:]+\]\s*/g, ' ');
-  return `${titulo}. ${tags}. ${trecho}`.trim();
+  return `${titulo}. ${trecho}`.trim();
 }
 
 const extractor = await pipeline('feature-extraction', MODEL);
