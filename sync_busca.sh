@@ -1,35 +1,36 @@
 #!/bin/bash
-# Sincroniza o catálogo do backup (Bitcoin e Liberdade) com o site de busca no GitHub Pages.
-# Roda depois do catalogo.py regenerar o dados.js. Se o catálogo mudou, regenera os
-# embeddings e publica no GitHub.
+# Sincroniza catálogo de vídeos + artigos do Substack com o site de busca no GitHub Pages.
 set -euo pipefail
 
 BACKUP_DADOS="/home/felipe/Backups/bitcoineliberdade/catalogo/dados.js"
+BACKUP_DIR="/home/felipe/Backups/bitcoineliberdade"
 REPO="/home/felipe/Bots/catalogo-busca"
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [sync-busca] $*"; }
 
-if [ ! -f "$BACKUP_DADOS" ]; then
-  log "dados.js do backup não encontrado; abortando"
-  exit 1
-fi
-
+[ -f "$BACKUP_DADOS" ] || { log "dados.js não encontrado; abortando"; exit 1; }
 cd "$REPO" || { log "repositório não encontrado"; exit 1; }
 
-# atualiza o catálogo no repositório
-cp "$BACKUP_DADOS" "$REPO/dados.js"
+# 1) catálogo de vídeos
+cp "$BACKUP_DADOS" dados.js
 
-# se o catálogo não mudou em relação ao que está versionado, não faz nada
-if git diff --quiet -- dados.js; then
-  log "catálogo inalterado; nada a publicar"
+# 2) artigos do Substack (com cache de 6h pra não raspar a cada hora)
+if [ ! -f textos.js ] || [ $(( $(date +%s) - $(stat -c %Y textos.js) )) -gt 21600 ]; then
+  (cd "$BACKUP_DIR" && python3 coletar_substack.py >> /tmp/coletar_substack.log 2>&1)
+fi
+
+# se nada mudou, não regenera embeddings nem publica
+if git diff --quiet; then
+  log "nada mudou; nada a publicar"
   exit 0
 fi
 
-log "catálogo mudou; regenerando embeddings…"
+log "mudanças detectadas; regenerando embeddings…"
 [ -d node_modules ] || npm install --silent
 node build_embeddings.mjs
+node build_embeddings_textos.mjs
 
-git add dados.js embeddings.js
-git commit -q -m "atualiza catálogo e embeddings ($(date '+%Y-%m-%d %H:%M'))"
+git add -A
+git commit -q -m "atualiza catálogo, artigos e embeddings ($(date '+%Y-%m-%d %H:%M'))"
 git push -q
 log "publicado com sucesso"
