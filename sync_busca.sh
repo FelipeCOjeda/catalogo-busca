@@ -34,3 +34,6 @@ git add -A
 git commit -q -m "atualiza catálogo, artigos e embeddings ($(date '+%Y-%m-%d %H:%M'))"
 git push -q
 log "publicado com sucesso"
+
+# compartilha os itens novos nas redes sociais (Telegram + Buffer + WhatsApp)
+cd "$BACKUP_DIR" && python3 compartilhar_redes.py >> compartilhar.log 2>&1
