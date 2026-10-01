@@ -200,7 +200,7 @@ function render(){
       <div class="card-body">
         <h2><a href="${link}" target="_blank">${termos.length?marcar(v.titulo,termos):esc(v.titulo)}</a></h2>
         <div class="meta"><span>${esc(v.data)}</span>${isTexto?'<span class="badge">artigo</span>':`<span>${esc(v.duracao)}</span>`}${!isTexto&&v.membros?'<span class="badge">só membros</span>':""}${sc?'<span class="score">'+sc+'</span>':""}</div>
-        <div class="links">${isTexto?`<a href="${v.url}" target="_blank">Substack</a>`:`<a href="${v.youtube}" target="_blank">YouTube</a>${v.odysee?`<a href="${v.odysee}" target="_blank">Odysee</a>`:""}${v.archive?`<a href="${v.archive}" target="_blank">Archive.org</a>`:""}`}</div>
+        <div class="links">${isTexto?`<a href="${v.url}" target="_blank">Substack</a>${v.archive?`<a href="${v.archive}" target="_blank">Archive.org</a>`:""}`:`<a href="${v.youtube}" target="_blank">YouTube</a>${v.odysee?`<a href="${v.odysee}" target="_blank">Odysee</a>`:""}${v.archive?`<a href="${v.archive}" target="_blank">Archive.org</a>`:""}`}</div>
         ${!isTexto&&(v.tags||[]).length?`<div class="tags">${esc(v.tags.slice(0,8).join(" · "))}</div>`:""}
         ${body}
       </div>
