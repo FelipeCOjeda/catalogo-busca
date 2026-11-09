@@ -36,4 +36,10 @@ git push -q
 log "publicado com sucesso"
 
 # compartilha os itens novos nas redes sociais (Telegram + Buffer + WhatsApp)
-cd "$BACKUP_DIR" && python3 compartilhar_redes.py >> compartilhar.log 2>&1
+# — somente entre 06:00 e 22:59 (não posta entre 23:00 e 06:00)
+hora=$(date +%-H)
+if [ "$hora" -ge 6 ] && [ "$hora" -lt 23 ]; then
+  cd "$BACKUP_DIR" && python3 compartilhar_redes.py >> compartilhar.log 2>&1
+else
+  log "compartilhamento adiado (fora da janela 06:00–23:00)"
+fi
